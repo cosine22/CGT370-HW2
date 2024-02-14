@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Marcos Pereira - Homework 2</title>
+    <style>
+      /* Add some styling if needed */
+
+      .axis text {
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body style="margin: auto; max-width: 500px; text-align: center">
+    <h1>Histogram</h1>
+    <ul>
+      <a href="./pChart.html">Pie Chart</a>
+      <a href="./scatter.html">Stacked Bar</a>
+      <a href="./lineChart.html">Line Chart</a>
+      <a href="./lollipop.html">Marimekko</a>
+    </ul>
+    <p style="margin: 0 auto; font-size: 24px; font-weight: bold">
+      2023 USA Box Office Domestic Gross
+    </p>
+    <!-- Create a div where the graph will take place -->
+
+    <script>
+      // Sample data for the bar chart
+      const data = [
+        { movie: "Barbie", rating: 636, color: "pink" },
+        { movie: "Super Mario Bros", rating: 574, color: "blue" },
+        {
+          movie: "Spider-Man: Across the Spider-Verse",
+          rating: 381,
+          color: "red",
+        },
+        {
+          movie: "Guardians of the Galaxy Vol. 3",
+          rating: 358,
+          color: "green",
+        },
+        { movie: "Oppenheimer", rating: 326, color: "black" },
+      ];
+
+      // Set up the SVG container
+      const svgWidth = 400;
+      const svgHeight = 300;
+      const margin = { top: 20, right: 20, bottom: 150, left: 100 };
+
+      const svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", svgWidth + margin.left + margin.right)
+        .attr("height", svgHeight + margin.top + margin.bottom);
+
+      // Set up scales for x and y axes
+      const xScale = d3
+        .scaleBand()
+        .domain(data.map((d) => d.movie))
+        .range([0, svgWidth])
+        .padding(0.1);
+
+      const yScale = d3
+        .scaleLinear()
+        .domain([0, d3.max(data, (d) => d.rating)])
+        .range([svgHeight, 0]);
+
+      // Draw bars
+      svg
+        .selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("class", "bar")
+        .attr("x", (d) => xScale(d.movie))
+        .attr("y", (d) => yScale(d.rating))
+        .attr("width", xScale.bandwidth())
+        .attr("height", (d) => svgHeight - yScale(d.rating))
+        .attr("fill", (d) => d.color)
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      // Add x-axis
+      svg
+        .append("g")
+        .attr("class", "axis")
+        .attr(
+          "transform",
+          `translate(${margin.left},${svgHeight + margin.top})`
+        )
+        .call(d3.axisBottom(xScale))
+        .selectAll("text")
+        .attr("transform", "rotate(-45)")
+        .style("text-anchor", "end");
+
+      // Add y-axis
+      svg
+        .append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`)
+        .call(d3.axisLeft(yScale));
+
+      // Add y-axis label
+      svg
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", 0 - svgHeight / 2 - margin.top)
+        .attr("y", 50)
+        .style("text-anchor", "middle")
+        .text("Domestic Gross (Millions USD)")
+        .fill("black");
+    </script>
+    <p style="padding: 10px; font-size: 20px">
+      This data shows the performance of the top 5 movies in Box Office Domestic
+      Gross in the USA for the year 2023.
+    </p>
+  </body>
+</html>

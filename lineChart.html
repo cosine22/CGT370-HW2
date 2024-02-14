@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Marcos Pereira - Homework 2</title>
+    <style>
+      .line {
+        fill: none;
+        stroke: black;
+        stroke-width: 3;
+      }
+    </style>
+  </head>
+  <body style="margin: 0 auto; max-width: 500px; text-align: center">
+    <h1>Line Chart</h1>
+    <ul>
+      <a href="./index.html">Histogram</a>
+      <a href="./pChart.html">Pie Chart</a>
+      <a href="./scatter.html">Stacked Bar</a>
+      <a href="./lollipop.html">Marimekko</a>
+    </ul>
+    <p style="margin: 0 auto; font-size: 24px; font-weight: bold">
+      Projected Instagram Users over the last 5 years
+    </p>
+    <!-- Create a div where the graph will take place -->
+    <!-- <div id="chart-container"></div> -->
+
+    <script>
+      // Sample data for the line chart
+      const data = [
+        { x: 2020, y: 1.04 },
+        { x: 2021, y: 1.21 },
+        { x: 2022, y: 1.28 },
+        { x: 2023, y: 1.35 },
+        { x: 2024, y: 1.4 },
+        { x: 2025, y: 1.44 },
+      ];
+
+      // Set up the SVG container
+      const svgWidth = 400;
+      const svgHeight = 200;
+      const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+
+      const svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", svgWidth + margin.left + margin.right)
+        .attr("height", svgHeight + margin.top + margin.bottom);
+
+      // Set up scales for x and y axes
+      const xScale = d3
+        .scaleLinear()
+        .domain([2020, d3.max(data, (d) => d.x)])
+        .range([0, svgWidth]);
+
+      const yScale = d3
+        .scaleLinear()
+        .domain([1.0, d3.max(data, (d) => d.y)])
+        .range([svgHeight, 0]);
+
+      // Define the line function
+      const line = d3
+        .line()
+        .x((d) => xScale(d.x))
+        .y((d) => yScale(d.y));
+
+      // Draw the line
+      svg
+        .append("path")
+        .data([data])
+        .attr("class", "line")
+        .attr("d", line)
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      // Add x-axis
+      svg
+        .append("g")
+        .attr("class", "axis")
+        .attr(
+          "transform",
+          `translate(${margin.left},${svgHeight + margin.top})`
+        )
+        .call(d3.axisBottom(xScale));
+
+      // Add x-axis label
+      svg
+        .append("text")
+        .attr("x", svgWidth / 2 + margin.left)
+        .attr("y", svgHeight + margin.top + margin.bottom - 10)
+        .style("text-anchor", "middle")
+        .text("Year");
+
+      // Add y-axis
+      svg
+        .append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`)
+        .call(d3.axisLeft(yScale));
+
+      // Add y-axis label
+      svg
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", 0 - svgHeight / 2 - margin.top)
+        .attr("y", 15)
+        .style("text-anchor", "middle")
+        .text("Users (Billions)")
+        .fill("black");
+    </script>
+    <p style="padding: 10px; font-size: 20px">
+      This data shows the projected users of Instagram from 2020 to 2025. The
+      users were counted for 2020-2022, but 2023-2025 are projected numbers
+    </p>
+  </body>
+</html>

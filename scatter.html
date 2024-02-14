@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Marcos Pereira - Homework 2</title>
+  </head>
+  <body style="margin: auto; max-width: 500px; text-align: center">
+    <h1>Stacked Bar</h1>
+    <ul>
+      <a href="./index.html">Histogram</a>
+      <a href="./pChart.html">Pie Chart</a>
+      <a href="./lineChart.html">Line Chart</a>
+      <a href="./lollipop.html">Marimekko</a>
+    </ul>
+    <p style="margin: 0 auto; font-size: 24px; font-weight: bold">
+      USA Imports v Exports (2012-2021)
+    </p>
+    <!-- Create a div where the graph will take place -->
+    <div id="my_dataviz"></div>
+
+    <script>
+      // Sample data for the stacked bar chart
+      const data = [
+        { year: 2012, Exports: 221, Imports: 277 },
+        { year: 2013, Exports: 228, Imports: 276 },
+        { year: 2014, Exports: 237, Imports: 288 },
+        { year: 2015, Exports: 226, Imports: 279 },
+        { year: 2016, Exports: 223, Imports: 273 },
+        { year: 2017, Exports: 238, Imports: 292 },
+        { year: 2018, Exports: 253, Imports: 313 },
+        { year: 2019, Exports: 253, Imports: 311 },
+        { year: 2020, Exports: 214, Imports: 277 },
+        { year: 2021, Exports: 254, Imports: 340 },
+      ];
+
+      // Set up the SVG container
+      const svgWidth = 600;
+      const svgHeight = 300;
+      const margin = { top: 0, right: 20, bottom: 30, left: 50 };
+
+      const svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", svgWidth + margin.left + margin.right)
+        .attr("height", svgHeight + margin.top + margin.bottom);
+
+      // Set up the x-axis scale
+      const xScale = d3
+        .scaleBand()
+        .domain(data.map((d) => d.year))
+        .range([0, svgWidth])
+        .padding(0.1);
+
+      // Set up the y-axis scale
+      const yScale = d3
+        .scaleLinear()
+        .domain([0, d3.max(data, (d) => d.Exports + d.Imports)])
+        .range([svgHeight, 0]);
+
+      // Set up the color scale for companies
+      const color = d3.scaleOrdinal().range(["#3498db", "#e74c3c"]);
+
+      // Stack the data
+      const stackedData = d3
+        .stack()
+        .keys(["Exports", "Imports"])
+        .order(d3.stackOrderNone)
+        .offset(d3.stackOffsetNone)(data);
+
+      // Draw stacked bars
+      svg
+        .selectAll("g")
+        .data(stackedData)
+        .enter()
+        .append("g")
+        .attr("fill", (d) => color(d.key))
+        .selectAll("rect")
+        .data((d) => d)
+        .enter()
+        .append("rect")
+        .attr("x", (d, i) => xScale(data[i].year) + margin.left)
+        .attr("y", (d) => yScale(d[1]))
+        .attr("height", (d) => yScale(d[0]) - yScale(d[1]))
+        .attr("width", xScale.bandwidth());
+
+      // Add x-axis
+      svg
+        .append("g")
+        .attr(
+          "transform",
+          `translate(${margin.left},${svgHeight + margin.top})`
+        )
+        .call(d3.axisBottom(xScale));
+
+      // Add y-axis
+      svg
+        .append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`)
+        .call(d3.axisLeft(yScale));
+
+      // Add y-axis label
+      svg
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", 0 - svgHeight / 2 - margin.top)
+        .attr("y", 12)
+        .style("text-anchor", "middle")
+        .text("Tens of Millions USD")
+        .fill("black");
+
+      // Add legend
+      const legend = svg
+        .append("g")
+        .attr("transform", `translate(${svgWidth - 100},${margin.top})`)
+        .selectAll(".legend")
+        .data(["Exports", "Imports"])
+        .enter()
+        .append("g")
+        .attr("class", "legend")
+        .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+      legend
+        .append("rect")
+        .attr("x", 0)
+        .attr("width", 18)
+        .attr("height", 18)
+        .attr("fill", (d) => color(d));
+
+      legend
+        .append("text")
+        .attr("x", 25)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "start")
+        .text((d) => d);
+    </script>
+    <p style="padding: 10px; font-size: 20px">
+      This data shows the total amount of money associated with the imports and
+      exports of the United States over the years of 2012-2021
+    </p>
+  </body>
+</html>

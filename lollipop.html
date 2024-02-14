@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Marcos Pereira - Homework 2</title>
+    <style>
+      rect {
+        border: 7px solid black;
+      }
+    </style>
+  </head>
+  <body style="margin: auto; max-width: 500px; text-align: center">
+    <h1>Marimekko</h1>
+    <ul>
+      <a href="./index.html">Histogram</a>
+      <a href="./scatter.html">Stacked Bar</a>
+      <a href="./lineChart.html">Line Chart</a>
+      <a href="./pChart.html">Pie Chart</a>
+    </ul>
+    <p style="margin: 0 auto; font-size: 24px; font-weight: bold">
+      2023 Worldwide Market Share of Mobile Operating Systems
+    </p>
+    <!-- Create a div where the graph will take place -->
+    <div id="my_dataviz"></div>
+
+    <script>
+      // Sample data for the Marimekko chart
+      const data = [
+        { category: "Android", value: 70.96, color: "steelblue" },
+        { category: "IOS", value: 29, color: "gray" },
+        { category: "Other", value: 1, color: "orange" },
+      ];
+
+      // Set up the SVG container
+      const svgWidth = 400;
+      const svgHeight = 200;
+      const margin = { top: 20, right: 50, bottom: 20, left: 20 };
+
+      const svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", svgWidth + margin.left + margin.right)
+        .attr("height", svgHeight + margin.top + margin.bottom);
+
+      // Calculate total value
+      const totalValue = d3.sum(data, (d) => d.value);
+
+      // Set up the x-axis scale
+      const xScale = d3
+        .scaleLinear()
+        .domain([0, totalValue])
+        .range([0, svgWidth]);
+
+      // Draw rectangles for each category
+      svg
+        .selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr(
+          "x",
+          (d, i) =>
+            xScale(d3.sum(data.slice(0, i), (d) => d.value)) + margin.left
+        )
+        .attr("y", margin.top)
+        .attr("width", (d) => xScale(d.value))
+        .attr("height", svgHeight - margin.top - margin.bottom)
+        .attr("fill", (d) => d.color)
+        .attr("stroke", "white")
+        .attr("stroke-width", 2);
+
+      // Add labels
+      svg
+        .selectAll("text")
+        .data(data)
+        .enter()
+        .append("text")
+        .attr(
+          "x",
+          (d, i) =>
+            xScale(d3.sum(data.slice(0, i + 1), (d) => d.value)) -
+            xScale(d.value) / 2 +
+            margin.left
+        )
+        .attr("y", svgHeight - 5)
+        .text((d) => d.category)
+        .attr("fill", "black");
+    </script>
+    <p style="padding: 10px; font-size: 20px">
+      This data shows the total market share between the leading mobile device
+      operating systems. Android leads with 69.94%, IOS has 29.32% of the share
+      while the rest are smaller or unknown Operating Systems.
+    </p>
+  </body>
+</html>
