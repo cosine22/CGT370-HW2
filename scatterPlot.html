@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Scatter Plot</title>
+    <style>
+      .dot {
+        fill: steelblue;
+        transition: r 0.2s; /* Add a smooth transition effect */
+      }
+
+      .axis-label {
+        font-size: 14px;
+      }
+
+      .chart-title {
+        font-size: 18px;
+        font-weight: bold;
+      }
+      a {
+        padding-right: 10px;
+        font-size: 18px;
+      }
+      #header {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        background-color: #f1721a;
+      }
+      ul {
+        float: inline-end;
+      }
+      #scatterPlot {
+        margin-top: 50px;
+        margin-right: 50px;
+      }
+      #tooltip {
+        position: absolute;
+        border: 1px solid black;
+        background-color: #e6e6e6;
+        font-size: small;
+        padding: 5px;
+        border-radius: 20px;
+      }
+    </style>
+  </head>
+  <body style="margin: auto; max-width: 700px; text-align: center">
+    <div id="header">
+      <h2>Marcos Pereira: HW3</h2>
+    </div>
+
+    <h1 style="float: left">Scatter Plot</h1>
+    <br />
+    <ul>
+      <a href="./choropleth.html">Choropleth</a>
+      <a href="./index.html">Diverging Bar</a>
+      <a href="./sankey.html">Chord</a>
+    </ul>
+
+    <svg
+      width="700"
+      height="500"
+      id="scatterPlot"
+      style="margin-left: 50px; overflow: visible; margin-top: 100px"
+    ></svg>
+
+    <div id="tooltip" class="tooltip"></div>
+
+    <script>
+      // Sample data (replace with your own dataset)
+      const data = [
+        { x: 1, y: 32, label: "Boy 1", color: "steelblue" },
+        { x: 1, y: 31, label: "Girl 1", color: "pink" },
+        { x: 2, y: 37, label: "Boy 2", color: "steelblue" },
+        { x: 2, y: 36, label: "Girl 2", color: "pink" },
+        { x: 3, y: 40.5, label: "Boy 3", color: "steelblue" },
+        { x: 3, y: 40, label: "Girl 3", color: "pink" },
+        { x: 4, y: 43, label: "Boy 4", color: "steelblue" },
+        { x: 4, y: 42.5, label: "Girl 4", color: "pink" },
+        { x: 6, y: 49, label: "Boy 5", color: "steelblue" },
+        { x: 6, y: 49, label: "Girl 5", color: "pink" },
+        { x: 8, y: 54, label: "Boy 6", color: "steelblue" },
+        { x: 8, y: 54, label: "Girl 6", color: "pink" },
+        { x: 10, y: 59, label: "Boy 7", color: "steelblue" },
+        { x: 10, y: 59, label: "Girl 7", color: "pink" },
+        { x: 12, y: 63.5, label: "Boy 8", color: "steelblue" },
+        { x: 12, y: 64, label: "Girl 8", color: "pink" },
+        { x: 14, y: 69.5, label: "Boy 9", color: "steelblue" },
+        { x: 14, y: 67.5, label: "Girl 9", color: "pink" },
+        { x: 16, y: 73, label: "Boy 9", color: "steelblue" },
+        { x: 16, y: 68, label: "Girl 9", color: "pink" },
+        { x: 18, y: 74, label: "Boy 10", color: "steelblue" },
+        { x: 18, y: 68.5, label: "Girl 10", color: "pink" },
+      ];
+
+      // Set up the SVG container
+      const svg = d3.select("#scatterPlot");
+
+      // Set up scales
+      const xScale = d3
+        .scaleLinear()
+        .domain([0, d3.max(data, (d) => d.x)])
+        .range([0, 600]);
+
+      const yScale = d3
+        .scaleLinear()
+        .domain([25, d3.max(data, (d) => d.y)])
+        .range([400, 0]);
+
+      // Create scatter plot points
+      const dots = svg
+        .selectAll(".dot")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("class", "dot")
+        .attr("cx", (d) => xScale(d.x))
+        .attr("cy", (d) => yScale(d.y))
+        .attr("r", 5) // Initial radius
+        .style("fill", function (d) {
+          return d.color;
+        })
+        .on("mouseover", handleMouseOver)
+        .on("mousemove", updateTooltip)
+        .on("mouseout", handleMouseOut);
+
+      // Create X-axis
+      svg
+        .append("g")
+        .attr("transform", "translate(0, 400)")
+        .call(d3.axisBottom(xScale))
+        .append("text")
+        .attr("class", "axis-label")
+        .attr("x", 300)
+        .attr("y", 40)
+        .style("text-anchor", "middle");
+
+      // Create Y-axis
+      svg
+        .append("g")
+        .call(d3.axisLeft(yScale))
+        .append("text")
+        .attr("class", "axis-label")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -200)
+        .attr("y", -40)
+        .style("text-anchor", "middle");
+
+      // Chart title
+      svg
+        .append("text")
+        .attr("class", "chart-title")
+        .attr("x", 300)
+        .attr("y", -50)
+        .style("text-anchor", "middle")
+        .text("Age v Height in Boy & Girls");
+
+      // Axis Labels
+      svg
+        .append("text")
+        .attr("transform", `translate(300,${450})`)
+        .style("text-anchor", "middle")
+        .text("Age (years)");
+
+      svg
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -60)
+        .attr("x", -200)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Height (inches)");
+
+      // Function to handle mouseover event
+      function handleMouseOver(event, d) {
+        d3.select(this).transition().attr("r", 10); // Expanded radius on hover
+
+        d3.select("#tooltip")
+          .style("opacity", 1)
+          .html(
+            `<strong>${data[d].label}</strong><br>Age: ${data[d].x} years<br>Height: ${data[d].y} inches`
+          )
+          .style("left", window.event.pageX + 10 + "px")
+          .style("top", window.event.pageY - 10 + "px");
+      }
+
+      // Function to handle mousemove event for tooltip
+      function updateTooltip(event) {
+        d3.select("#tooltip")
+          .style("left", event.pageX + "px")
+          .style("top", event.pageY + "px");
+      }
+
+      // Function to handle mouseout event
+      function handleMouseOut() {
+        d3.select(this).transition().attr("r", 5); // Return to initial radius on mouseout
+
+        d3.select("#tooltip").style("opacity", 0);
+      }
+    </script>
+  </body>
+</html>

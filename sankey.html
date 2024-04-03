@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8" />
+  <title>Sankey</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+    a {
+      padding-right: 10px;
+      font-size: 18px;
+    }
+    #header {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+      background-color: #f1721a;
+    }
+    ul {
+      float: inline-end;
+    }
+    #chart {
+      margin: 50px;
+      overflow: visible;
+    }
+  </style>
+</head>
+
+<body style="margin: auto; max-width: 700px; text-align: center">
+  <div id="header">
+    <h2>Marcos Pereira: HW3</h2>
+  </div>
+
+  <h1 style="float: left">Chord Diagram</h1>
+
+  <br />
+  <ul>
+    <a href="./choropleth.html">Choropleth</a>
+    <a href="./index.html">Diverging Bar</a>
+    <a href="./scatterPlot.html">Scatter Plot</a>
+  </ul>
+
+  <!-- Load d3.js -->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+
+  <svg id="chart"></svg>
+  <label for="countries">Filter:</label>
+
+  <select name="countries" id="countries">
+    <option value="all">All</option>
+    <option value="asia">Asia</option>
+    <option value="europe">Europe</option>
+    <option value="samerica">South America</option>
+    <option value="usa">USA</option>
+  </select>
+  <script src="script.js"></script>
+</body>

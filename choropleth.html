@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Choropleth Chart with Tooltip</title>
+    <style>
+      .tooltip {
+        position: absolute;
+        background-color: white;
+        color: black;
+        padding: 5px;
+        border-radius: 3px;
+        pointer-events: none;
+        display: none;
+      }
+      a {
+        padding-right: 10px;
+        font-size: 18px;
+      }
+      #header {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        background-color: #f1721a;
+      }
+      ul {
+        float: inline-end;
+      }
+      .circle:hover {
+        stroke: black;
+        stroke-width: 4px;
+      }
+      svg {
+      }
+      #my_dataviz {
+      }
+    </style>
+  </head>
+  <body
+    style="
+      margin: auto;
+      max-width: 700px;
+      text-align: center;
+      background-color: #35afc0;
+    "
+  >
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+    <div id="header">
+      <h2>Marcos Pereira: HW3</h2>
+    </div>
+
+    <h1 style="float: left">Choropleth</h1>
+    <br />
+    <ul>
+      <a href="./sankey.html">Chord</a>
+      <a href="./index.html">Diverging Bar</a>
+      <a href="./scatterPlot.html">Scatter Plot</a>
+    </ul>
+
+    <!-- Create an element where the map will take place -->
+    <svg id="my_dataviz" width="480" height="300"></svg>
+    <div class="tooltip" id="tooltip"></div>
+    <script>
+      // The svg
+      var svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height");
+
+      // Map and projection
+      var projection = d3
+        .geoMercator()
+        .center([2, 40]) // GPS of location to zoom on
+        .scale(1200) // This is like the zoom
+        .translate([width / 2, height / 2]);
+
+      // Create data for circles:
+      var markers = [
+        {
+          long: -3.7038,
+          lat: 40.4168,
+          group: "A",
+          size: 33,
+          name: "Madrid",
+          pop: "3.3M",
+        }, // madrid
+        {
+          long: 2.1686,
+          lat: 41.3874,
+          group: "A",
+          size: 16,
+          name: "Barcelona",
+          pop: "1.6M",
+        }, // barcelona
+        {
+          long: -5.9845,
+          lat: 37.3891,
+          group: "B",
+          size: 7,
+          name: "Seville",
+          pop: "680K",
+        }, // seville
+        {
+          long: -0.3763,
+          lat: 39.4699,
+          group: "B",
+          size: 8,
+          name: "Valencia",
+          pop: "790K",
+        }, // valencia
+        {
+          long: -2.935,
+          lat: 42.263,
+          group: "C",
+          size: 4,
+          name: "Bilbao",
+          pop: "350K",
+        }, // bilbao
+        {
+          long: -3.5984,
+          lat: 37.1775,
+          group: "C",
+          size: 3,
+          name: "Granada",
+          pop: "240K",
+        }, // granada
+      ];
+
+      // Load external data and boot
+      d3.json(
+        "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson",
+        function (data) {
+          // Filter data
+          data.features = data.features.filter(function (d) {
+            return d.properties.name == "Spain";
+          });
+
+          const tooltip = d3.select("#tooltip");
+
+          // Create a color scale
+          var color = d3
+            .scaleOrdinal()
+            .domain(["A", "B", "C"])
+            .range(["#402D54", "#D18975", "#8FD175"]);
+
+          // Add a scale for bubble size
+          var size = d3
+            .scaleLinear()
+            .domain([1, 100]) // What's in the data
+            .range([4, 50]); // Size in pixel
+
+          // Draw the map
+          svg
+            .append("g")
+            .selectAll("path")
+            .data(data.features)
+            .enter()
+            .append("path")
+            .attr("fill", "#EFCF21")
+            .attr("d", d3.geoPath().projection(projection))
+            .style("stroke", "black")
+            .style("opacity", 1);
+
+          // Three function that change the tooltip when user hover / move / leave a cell
+          var mouseover = function (d) {
+            tooltip
+              .style("display", "block")
+              .html(`${d.name} <br/> Pop. : ${d.pop}`)
+              .style("left", window.event.pageX + 20 + "px")
+              .style("top", window.event.pageY - 30 + "px");
+          };
+
+          var mouseleave = function (d) {
+            tooltip.style("display", "none");
+          };
+
+          // Add circles:
+          svg
+            .selectAll("myCircles")
+            .data(markers)
+            .enter()
+            .append("circle")
+            .attr("cx", function (d) {
+              return projection([d.long, d.lat])[0];
+            })
+            .attr("cy", function (d) {
+              return projection([d.long, d.lat])[1];
+            })
+            .attr("r", function (d) {
+              return size(d.size);
+            })
+            .style("fill", function (d) {
+              return color(d.group);
+            })
+            .attr("stroke", function (d) {
+              return color(d.group);
+            })
+            .attr("stroke-width", 3)
+            .attr("fill-opacity", 0.4)
+            .on("mouseover", mouseover)
+            .on("mouseleave", mouseleave);
+        }
+      );
+    </script>
+    <p style="font-size: 20px">
+      Map of Spain and the location of its six largest cities
+    </p>
+  </body>
+</html>
