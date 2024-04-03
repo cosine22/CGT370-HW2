@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Diverging Bar Chart</title>
+    <style>
+      h1 {
+        float: left;
+      }
+      .tooltip {
+        position: absolute;
+        display: none;
+        padding: 8px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      a {
+        padding-right: 10px;
+        font-size: 18px;
+      }
+      #header {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        background-color: #f1721a;
+      }
+      ul {
+        float: inline-end;
+      }
+    </style>
+  </head>
+  <body style="margin: auto; max-width: 700px; text-align: center">
+    <div id="header">
+      <h2>Marcos Pereira: HW3</h2>
+    </div>
+
+    <h1>Diverging Bar</h1>
+    <br />
+    <ul>
+      <a href="./choropleth.html">Choropleth</a>
+      <a href="./scatterPlot.html">Scatter Plot</a>
+      <a href="./sankey.html">Chord</a>
+    </ul>
+    <div class="tooltip" id="tooltip"></div>
+    <script>
+      const data = [
+        { category: "Website/Apps", value: 2 },
+        { category: "Search", value: 3 },
+        { category: "Social Media", value: -1 },
+        { category: "Podcasts", value: 2 },
+      ];
+
+      const margin = { top: 30, right: 30, bottom: 50, left: 50 };
+      const width = 600 - margin.left - margin.right;
+      const height = 400 - margin.top - margin.bottom;
+
+      const svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const tooltip = d3
+        .select("body")
+        .append("div")
+        .attr("class", "tooltip")
+        .attr("id", "tooltip");
+
+      // Set up scales
+      const xScale = d3
+        .scaleBand()
+        .domain(data.map((d) => d.category))
+        .range([0, width])
+        .padding(0.1);
+
+      const yScale = d3.scaleLinear().domain([-5, 5]).range([height, 0]);
+
+      // Bars
+      svg
+        .selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => xScale(d.category))
+        .attr("y", (d) => (d.value >= 0 ? yScale(d.value) : yScale(0)))
+        .attr("width", xScale.bandwidth())
+        .attr("height", (d) => Math.abs(yScale(0) - yScale(d.value)))
+        .attr("fill", (d) => (d.value >= 0 ? "steelblue" : "orange"))
+        // Add Tooltip Interaction
+        .on("mouseover", (event, d) => {
+          tooltip
+            .style("display", "inline-block")
+            .html(`<strong>${data[d].category}</strong>: ${data[d].value}`);
+        })
+        .on("mousemove", (event) => {
+          tooltip
+            .style("left", event.pageX + 10 + "px")
+            .style("top", event.pageY - 20 + "px");
+        })
+        .on("mouseout", () => {
+          tooltip.style("display", "none");
+        });
+
+      // Create axes
+      const xAxis = d3.axisBottom(xScale);
+      const yAxis = d3.axisLeft(yScale);
+
+      svg.append("g").attr("transform", `translate(0, ${height})`).call(xAxis);
+
+      svg.append("g").call(yAxis);
+
+      // Add axis labels
+      svg
+        .append("text")
+        .attr(
+          "transform",
+          `translate(${width / 2},${height + margin.top + 20})`
+        )
+        .style("text-anchor", "middle")
+        .text("Categories");
+
+      svg
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - height / 2)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Percentage change from 2022-2023");
+
+      // Add chart title
+      svg
+        .append("text")
+        .attr("x", width / 2)
+        .attr("y", 0 - margin.top / 2)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .text("Digital News Platform Preferences");
+    </script>
+  </body>
+</html>
